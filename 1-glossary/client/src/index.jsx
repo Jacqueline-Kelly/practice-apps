@@ -1,9 +1,4 @@
-import React from "react";
+import App from './App.jsx'
 import { render } from "react-dom";
 
-render(
-  <div>
-    <p>Hello, World!</p>
-  </div>,
-  document.getElementById("root")
-);
+render(<App />, document.getElementById("root"));
