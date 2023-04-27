@@ -65,9 +65,23 @@ const putRoute = async(req, res, callback) => {
   }
 }
 
+const deleteRoute = async(req, res, callback) => {
+  try {
+    if (!req.params.word) {
+      throw new Error ('missing word')
+    } else {
+      callback();
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(404);
+  }
+}
+
 app.post('/api', postRoute, db.postGlossary, getRoute);
 app.get('/api', getRoute);
 app.put('/api', putRoute, db.updateGlossary);
+app.delete('/api/:word', deleteRoute, db.deleteWord);
 
 app.listen(process.env.PORT);
 console.log(`Listening at http://localhost:${process.env.PORT}`);

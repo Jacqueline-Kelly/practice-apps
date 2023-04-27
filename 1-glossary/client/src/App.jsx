@@ -1,9 +1,9 @@
 import React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 
 const App = () => {
-  const [glossary, setGlossary] = useState([]); // Array of objects. Objects - key: word, value: defintiion
+  const [glossary, setGlossary] = useState([]); // Array of objects. Objects - key: word, value: definition
   const [newWord, setNewWord] = useState({
     username: '',
     word: '',
@@ -11,15 +11,14 @@ const App = () => {
   });
   const [filter, setFilter] = useState('');
   const [modal, setModal] = useState(0);
+  const [page, setPage] = useState(1);
 
   let modalOptions = [{"visibility": "hidden"}, {"borderRadius" : "1rem", "width" : "100%"}]
   const {word, username, definition} = newWord;
 
   const onChange = (e) => {
     e.preventDefault();
-
     if (Object.keys(newWord).includes(e.target.id)) {
-      console.log('updating new word')
       setNewWord((prevState) => ({...prevState,
         [e.target.id]: e.target.value
       }));
@@ -30,7 +29,6 @@ const App = () => {
 
   const onClick = (e) => {
     e.preventDefault();
-
     if (!username | !word) {
       throw new Error ('Enter username or password')
     } else {
@@ -51,13 +49,28 @@ const App = () => {
     setGlossary(copy);
   }
 
+  const onMovePage = (dir) => {
+    if (dir) { //move forward
+      if (page < glossary.length/10) { // data for another page
+        setPage(page + 1);
+      }
+    } else {
+      if (page > 1) { //can't go back if already on page one
+        setPage(page - 1);
+      }
+    }
+    return;
+  }
+
   const onUpdateDefinition = (e) => {
     e.preventDefault();
-
     axios.put('http://localhost:3000/api', newWord).then(fetchData)
     setNewWord((prevState) => ({...prevState, definition: '', word:''}));
     setModal(modal + 1);
+  }
 
+  const onClickDelete = (index) => {
+    axios.delete(`http://localhost:3000/api/${glossary[index].word}`).then(fetchData)
   }
 
   const fetchData = () => {
@@ -65,9 +78,18 @@ const App = () => {
     .then((res) => setGlossary(res.data));
   }
 
+  const paginationRange = useMemo(() => {
+    if (glossary) {
+      return glossary.slice(10 * (page - 1), 10 * page - 1)
+    }
+    return [];
+  }
+  , [page, glossary])
+
   useEffect(() => {
     fetchData();
-  }, [])
+
+  }, [page])
 
   return (
     <div>
@@ -89,18 +111,25 @@ const App = () => {
         <button onClick={onUpdateDefinition}>Submit your modified definition!</button>
       </section>
 
-      {glossary.length ?
+      {paginationRange.length ?
         <div>
-          {glossary.map((word, index) =>
+          {paginationRange.map((word, index) =>
             <div key={index} >
               <h4>{word.word}</h4>
               <p>{word.definition}</p>
               <button onClick={() => onClickEdit(index)}>Edit Definition</button>
-              <button>Delete</button>
+              <button onClick={() => onClickDelete(index)}>Delete</button>
             </div>
           )}
         </div>
       : null}
+      <div style={{'display' : 'block', 'textAlign': 'center'}}>
+        <h4>Page</h4>
+        <p>{page}</p>
+        <button onClick={() => onMovePage(0)}>Previous Page</button>
+        <button onClick={() => onMovePage(1)}>Next Page</button>
+      </div>
+
     </div>
   )
 }

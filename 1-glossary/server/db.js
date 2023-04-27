@@ -55,10 +55,19 @@ exports.getGlossary = async(req, res) => {
 
 exports.updateGlossary = async(req, res) => {
   try {
-    console.log(req.body, 'in update glossary')
     let doc = await Word.findOneAndUpdate({word: req.body.word}, {definition: req.body.definition})
     res.status(200).send(doc);
   } catch (err) {
     console.log(err);
+  }
+}
+
+exports.deleteWord = async(req, res) => {
+  try {
+    let doc = await Word.findOneAndDelete({word: req.params.word});
+    res.status(200).send('success');
+  } catch (err) {
+    console.log(err);
+    res.status(400);
   }
 }
