@@ -4,8 +4,6 @@ import { update } from '../store.js';
 
 const Home = () => {
   const cookie = JSON.stringify(document.cookie, undefined, "\t");
-  const dispatch = useDispatch();
-  dispatch(update({cookie: cookie}));
 
   return (
     <div>

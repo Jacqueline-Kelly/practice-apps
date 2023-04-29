@@ -22,7 +22,10 @@ const F1 = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!name || !email || !password) {
+    let regex = new RegExp('[a-z0-9]+@[a-z]+\.[a-z]{2,3}');
+    if (!regex.test(email)) {
+      window.alert('Please enter a valid email.')
+    } else if (!name || !email || !password) {
       window.alert('Please make sure you fill out all fields before submitting.')
     } else {
       dispatch(update(form)); // dispatch the update for redux

@@ -51,7 +51,10 @@ export const formSlice = createSlice({
   initialState: initialState,
   reducers: {
     reset: (state) => initialState,
-    update: (state, action) => ({...state, ...action.payload}),
+    update: (state, action) => {
+      stateHandler.setState({...state, ...action.payload});
+      return {...state, ...action.payload}
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -66,10 +69,33 @@ export const formSlice = createSlice({
   }
 })
 
+class StateHandler {
+  setState(state) {
+    localStorage.setItem('serializedState', JSON.stringify(state));
+  }
+
+  loadState() {
+    let serializedState = localStorage.getItem('serializedState');
+    console.log('load state is called', serializedState);
+    if (!serializedState) {
+      return this.initializeState();
+    }
+    return {form: JSON.parse(serializedState)};
+  }
+
+  initializeState() {
+    return initialState;
+  }
+}
+
+let stateHandler = new StateHandler();
+let init = stateHandler.loadState();
 
 export const store = configureStore({
   reducer: {
-    form: formSlice.reducer}
+    form: formSlice.reducer
+  },
+  preloadedState: stateHandler.loadState(),
 })
 
 export const {reset, update} = formSlice.actions;
