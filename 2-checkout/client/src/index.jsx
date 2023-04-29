@@ -1,12 +1,15 @@
 import React from "react";
 import { render } from "react-dom";
+import App from './App.jsx';
+import { Provider } from 'react-redux';
+import { persistor, store } from './store';
+import { PersistGate } from 'redux-persist/integration/react';
 
 render(
-  <div>
-    <p>Hello, World!</p>
-    <p>
-      <code>Page Cookie: {JSON.stringify(document.cookie, undefined, "\t")}</code>
-    </p>
-  </div>,
+  <Provider store={store}>
+    {/* <PersistGate loading={null} persistor={persistor}> */}
+      <App />
+    {/* </PersistGate> */}
+  </Provider>,
   document.getElementById("root")
 );

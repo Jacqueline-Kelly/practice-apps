@@ -16,16 +16,45 @@ app.use(sessionHandler);
 // Logs the time, session_id, method, and url of incoming requests.
 app.use(logger);
 
+app.use(express.json());
+
 // Serves up all static and generated assets in ../client/dist.
 app.use(express.static(path.join(__dirname, "../client/dist")));
 
-/**** 
- * 
- * 
- * Other routes here....
+/****
  *
- * 
- */
+*
+* Other routes here....
+*
+*
+*/
+
+const postReponse = async(req, res) => {
+  try {
+    const form = req.body;
+
+    const values = [req.session_id, form.name, form.email, form.password, form.address1, form.address2, form.city, form.state, form.zipCode, form.phoneNumber, form.creditCard, form.expiration, form.cvv, form.billingZip];
+
+    const sqlQuery = "INSERT INTO responses (cookie, name, email, password, address1, address2, city, state, zipCode, phoneNumber, creditCard, expiration, cvv, billingZip) VALUES (?)";
+    db.queryAsync(sqlQuery, [values]).then((data) => {
+      res.status(201).send('Your order has been successfully submitted.');
+    }
+    );
+  } catch (err) {
+    console.log(err);
+    res.status(400).send(err);
+  }
+}
+
+const getUser = async(req, res) => {
+
+}
+
+app.post('/api', postReponse);
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, "../client/dist/"))
+})
 
 app.listen(process.env.PORT);
 console.log(`Listening at http://localhost:${process.env.PORT}`);
